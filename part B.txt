@@ -1,0 +1,125 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Arrays;
+
+public class Main {
+
+    static Map<Integer, Integer> frequency = new HashMap<>();
+    static int[] DieA;
+    static int[] DieB;
+
+    public static void undoomDice(int[] Die3, int[] Die4) {
+        Map<Integer, Integer> frequency2 = new HashMap<>();
+        boolean flag = true;
+
+        for (int i = 0; i < Die3.length; i++) {
+            for (int j = 0; j < Die4.length; j++) {
+                frequency2.put(Die3[i] + Die4[j], frequency2.getOrDefault(Die3[i] + Die4[j], 0) + 1);
+
+                if (frequency2.get(Die3[i] + Die4[j]) > frequency.get(Die3[i] + Die4[j])) {
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (!flag) {
+                break;
+            }
+        }
+
+        if (flag) {
+            DieA = Arrays.copyOf(Die3, Die3.length);
+            DieB = Arrays.copyOf(Die4, Die4.length);
+        }
+    }
+
+    public static void possibleDie4(int[] Die3, int[] Die4, int n) {
+        if (n == 5) {
+            undoomDice(Die3, Die4);
+            return;
+        }
+
+        for (int i = 0; i < 8; i++) {
+            Die4[n] = i + 1;
+            possibleDie4(Die3, Die4, n + 1);
+        }
+    }
+
+    public static void possibleDie3(int[] Die3, int n) {
+        if (n == 5) {
+            int[] Die4 = {1, 0, 0, 0, 0, 8};
+            possibleDie4(Die3, Die4, 1);
+            return;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            Die3[n] = i + 1;
+            possibleDie3(Die3, n + 1);
+        }
+    }
+
+    public static void probabilityCheck(int[] Die1, int[] Die2) {
+        Map<Integer, Float> combination = new HashMap<>();
+
+        for (int i : Die1) {
+            for (int j : Die2) {
+                int sum = i + j;
+                combination.put(sum, combination.getOrDefault(sum, 0f) + 1);
+            }
+        }
+
+        int totalCombination = Die1.length * Die2.length;
+
+        System.out.println("Probability Check of New Dice:");
+        System.out.println();
+
+        for (Map.Entry<Integer, Float> entry : combination.entrySet()) {
+            int key = entry.getKey();
+            float value = entry.getValue();
+            System.out.println("probability(sum=" + key + ")= " + value + "(occurrence)/" + totalCombination
+                    + "(total combination)= " + value / totalCombination);
+            System.out.println();
+        }
+    }
+
+    public static void print(int[] DieA, int[] DieB) {
+        System.out.println("Loki's Doomed Dice with No Change in Probability");
+        System.out.println();
+
+        Arrays.sort(DieA);
+        Arrays.sort(DieB);
+
+        System.out.print("New Die1: ");
+        for (int value : DieA) {
+            System.out.print(value + " ");
+        }
+        System.out.println();
+
+        System.out.print("New Die2: ");
+        for (int value : DieB) {
+            System.out.print(value + " ");
+        }
+        System.out.println();
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        int[] Die1 = {1, 2, 3, 4, 5, 6};
+        int[] Die2 = {1, 2, 3, 4, 5, 6};
+
+        for (int i : Die1) {
+            for (int j : Die2) {
+                int sum = i + j;
+                frequency.put(sum, frequency.getOrDefault(sum, 0) + 1);
+            }
+        }
+
+        int[] Die3 = {1, 0, 0, 0, 0, 4};
+
+        possibleDie3(Die3, 1);
+
+        print(DieA, DieB);
+
+        probabilityCheck(DieA, DieB);
+    }
+}
